@@ -2,9 +2,7 @@ import heapq
 import numpy as np
 import logging
 from datetime import datetime
-from collections import defaultdict, deque
 
-# Constants matching environment
 BOX = 10
 LAVA = -100
 BARRIER = 100
