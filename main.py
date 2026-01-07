@@ -12,7 +12,7 @@ from datetime import datetime
 from environment import ShoverWorldEnv
 from gui import EnhancedShoverWorldGUI
 from typing import Optional, Tuple, List, Dict
-from simpleAgent import AStarSolver
+from AstarTemplate import AStarSolver
 import threading
 import queue
 import time
@@ -656,7 +656,7 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
             self.auto_play = False
             self._show_message("Episode ended during AI playback.", self.colors['warning'])
             global STEMINA, SEARCH_TIME
-            STEMINA = self.env.stamina
+            STEMINA = self.env.stamina - SEARCH_TIME//.2
 
             print(f"Remaining stemina: {STEMINA}, Search time: {SEARCH_TIME:.3f}")
 
@@ -787,8 +787,8 @@ def main():
         n_rows=11,
         n_cols=15,
         max_timestep=1000,
-        number_of_boxes=10,
-        number_of_barriers=5,
+        number_of_boxes=20,
+        number_of_barriers=8,
         number_of_lavas=3,
         initial_stamina=1000.0,
         initial_force=40.0,
