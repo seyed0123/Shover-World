@@ -21,17 +21,7 @@ SEARCH_TIME = None
 STEMINA = None
 
 class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
-    """
-    Advanced GUI with all premium features.
-    
-    Additional Controls:
-    - Ctrl+Z: Undo | Ctrl+Y: Redo
-    - Ctrl+S: Save game | Ctrl+L: Load game
-    - P: Pause/Resume auto-play
-    - N: Next step (when paused)
-    - Ctrl+R: Start/stop recording replay
-    - +/- : Adjust auto-play speed
-    """
+
     
     def __init__(self, env: ShoverWorldEnv, initial_cell_size: int = 50, fullscreen: bool = False):
         super().__init__(env, initial_cell_size, fullscreen)
@@ -42,18 +32,18 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
         self.ai_play = False
         self.ai_busy = False
         self.ai_thread = None
-        self.ai_message_queue = queue.Queue()  # Thread-safe communication
+        self.ai_message_queue = queue.Queue()
 
-        # History for undo/redo
+
         self.history = []
         self.history_index = -1
         self.max_history = 100
         
-        # Recording
+
         self.recording = False
         self.replay_data = []
         
-        # Statistics
+
         self.stats = {
             'total_actions': 0,
             'valid_actions': 0,
@@ -65,19 +55,19 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
             'session_start_time': datetime.now(),
         }
 
-        # Auto-play
+
         self.auto_play = False
-        self.auto_play_delay = 500  # ms
+        self.auto_play_delay = 500
         self.last_auto_action_time = 0
 
-        # Expand window for stats panel
+
         self.stats_panel_height = 120
         self.window_height += self.stats_panel_height
         self.window = pygame.display.set_mode((self.window_width, self.window_height), 
                                                pygame.RESIZABLE)
         pygame.display.set_caption("Shover-World - Advanced Edition")
         
-        # UI state
+
         self.show_stats = True
         self.initialized = False
 
@@ -116,11 +106,11 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
         """Runs in background thread - does NOT touch GUI directly."""
         import logging
         
-        # Redirect logs to queue instead of console (optional)
+
         logger = logging.getLogger('ai_solver')
         
         try:
-            # Create temporary env with current state
+
             tmp = ShoverWorldEnv(
                 n_rows=self.env.n_rows, n_cols=self.env.n_cols,
                 max_timestep=self.env.max_timestep,
@@ -135,7 +125,7 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
             )
             tmp.reset()
             
-            # Copy current GUI state to temp env
+
             tmp.grid = self.env.grid.copy()
             tmp.stamina = self.env.stamina
             tmp.timestep = self.env.timestep
@@ -145,14 +135,14 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
             tmp.perfect_squares = list(self.env.perfect_squares)
 
             start = time.time()
-            # Solve (this blocks but only in the background thread)
+
             solver = AStarSolver(tmp, max_expansions=50_000, log_interval=500)
             plan = solver.solve()
             elapsed = time.time() - start
             logger.info(f"AI Solver: Path found with {len(plan)} steps in {elapsed:.3f} seconds." if plan else "AI Solver: No plan found.")
             global SEARCH_TIME
             SEARCH_TIME = elapsed
-            # Send result back to main thread via queue
+
             self.ai_message_queue.put(('plan_ready', plan))
             
         except Exception as e:
@@ -181,7 +171,7 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
                     self._show_message(f"✗ AI error: {data}", self.colors['danger'])
                     
         except queue.Empty:
-            pass  # No messages waiting
+            pass
 
 
     def run(self):
@@ -197,7 +187,7 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
 
             self._check_ai_messages()
 
-            # Handle events
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -210,7 +200,7 @@ class AdvancedShoverWorldGUI(EnhancedShoverWorldGUI):
                         self._handle_mouse_click(event.pos)
                     elif event.button == 4:  # Scroll up
                         self._zoom(1)
-                    elif event.button == 5:  # Scroll down
+                    elif event.button == 5:
                         self._zoom(-1)
                 
                 elif event.type == pygame.MOUSEMOTION:
